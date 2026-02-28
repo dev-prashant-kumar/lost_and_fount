@@ -123,3 +123,5 @@ node_modules
 /src/generated/prisma
 .prisma
 dist
+build
+backend/node_modules
