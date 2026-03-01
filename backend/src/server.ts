@@ -1,17 +1,18 @@
 import express from "express";
-import cors from "cors";
 import { prisma } from "./lib/prisma.js";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
-
-app.use(cors());
 app.use(express.json());
 
-app.get("/", async (req, res) => {
-  const users = await prisma.user.findMany();
-  res.json(users);
+app.use("/api/auth", authRoutes);
+
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
 });
 
-app.listen(5000, () => {
-  console.log("Server running on http://localhost:5000");
+import { authenticate } from "./middleware/auth.middleware";
+
+app.get("/api/protected", authenticate, (req, res) => {
+  res.json({ message: "You are authenticated!" });
 });

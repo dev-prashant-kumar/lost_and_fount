@@ -5,26 +5,117 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+//////////////////////////
+// ENUMS
+//////////////////////////
+
+enum Role {
+  USER
+  ADMIN
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+enum ItemType {
+  LOST
+  FOUND
+}
+
+enum ItemStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CLAIMED
+  RETURNED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+//////////////////////////
+// MODELS
+//////////////////////////
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+
+  items         Item[]         @relation("UserItems")
+  claims        Claim[]
+  messages      Message[]
+  notifications Notification[]
+}
+
+model Item {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  imageUrl    String?
+  location    String
+  type        ItemType
+  status      ItemStatus @default(PENDING)
+
+  owner   User   @relation("UserItems", fields: [ownerId], references: [id])
+  ownerId String
+
+  claims Claim[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Claim {
+  id String @id @default(uuid())
+
+  item   Item   @relation(fields: [itemId], references: [id])
+  itemId String
+
+  claimant   User   @relation(fields: [claimantId], references: [id])
+  claimantId String
+
+  status ClaimStatus @default(PENDING)
+
+  messages Message[] // ✅ Opposite relation added
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id String @id @default(uuid())
+
+  sender   User   @relation(fields: [senderId], references: [id])
+  senderId String
+
+  claim   Claim?  @relation(fields: [claimId], references: [id])
+  claimId String?
+
+  content String
+
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  title   String
+  message String
+  isRead  Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
