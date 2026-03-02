@@ -5,12 +5,12 @@
     "moduleResolution": "bundler",
     "outDir": "dist",
     "rootDir": "src",
-    "forceConsistentCasingInFileNames": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node"],
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "generated/prisma/index.ts"],
-  "exclude": ["node_modules"]
+  "include": ["src"],
+  "exclude": ["node_modules", "generated"]
 }

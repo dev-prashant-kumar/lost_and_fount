@@ -1,30 +1,20 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { supabase } from "../config/supabase";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
-
-export interface AuthRequest extends Request {
-  user?: any;
-}
-
-export const authenticate = (
-  req: AuthRequest,
+export const authenticate = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization;
+  const token = req.headers.authorization?.split(" ")[1];
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
+  if (!token) return res.status(401).json({ error: "No token provided" });
 
-  const token = authHeader.split(" ")[1];
+  const { data, error } = await supabase.auth.getUser(token);
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
+  if (error) return res.status(401).json({ error: "Invalid token" });
+
+  (req as any).user = data.user;
+
+  next();
 };

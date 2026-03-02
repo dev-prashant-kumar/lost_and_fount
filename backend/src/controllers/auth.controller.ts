@@ -1,70 +1,59 @@
 import { Request, Response } from "express";
-import bcrypt from "bcrypt";
-import { prisma } from "../lib/prisma";
-import { generateToken } from "../lib/jwt";
+import {
+  signupService,
+  verifyOtpService,
+  loginService,
+  createProfile
+} from "../services/auth.service";
 
-export const register = async (req, res) => {
-  try {
-    const { email, password, name } = req.body;
+// SIGNUP
+export const signup = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Missing fields" });
-    }
+  const { data, error } = await signupService(email, password);
 
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+  if (error) return res.status(400).json({ error: error.message });
 
-    if (existingUser) {
-      return res.status(400).json({ error: "Email already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-      },
-    });
-
-    return res.status(201).json({
-      message: "User registered successfully",
-      user,
-    });
-
-  } catch (error: any) {
-    console.error("REGISTER ERROR:", error);
-    return res.status(500).json({ error: error.message });
+  // Insert into profiles table
+  if (data.user) {
+    await createProfile(data.user.id, email);
   }
+
+  return res.json({
+    message: "Signup successful. Check email for OTP.",
+    user: data.user
+  });
 };
 
+// VERIFY OTP
+export const verifyOtp = async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+
+  const { data, error } = await verifyOtpService(email, otp);
+
+  if (error) return res.status(400).json({ error: error.message });
+
+  return res.json({
+    message: "Email verified successfully",
+    access_token: data.session?.access_token,
+    refresh_token: data.session?.refresh_token,
+    user: data.user
+  });
+};
+
+// LOGIN
 export const login = async (req: Request, res: Response) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { email }
-    });
+  const { data, error } = await loginService(email, password);
 
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+  if (error) return res.status(400).json({ error: error.message });
 
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const token = generateToken(user.id, user.role);
-
-    res.json({
-      message: "Login successful",
-      token
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Login failed" });
-  }
+  return res.json({
+    message: "Login successful",
+    access_token: data.session?.access_token,
+    refresh_token: data.session?.refresh_token,
+    user: data.user
+  });
 };
+
