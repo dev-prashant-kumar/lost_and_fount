@@ -1,0 +1,230 @@
+/* Full Page Center */
+
+.login-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0f172a;
+    font-family: Arial, sans-serif;
+}
+
+
+/* Card Box */
+
+.login-card {
+    width: 350px;
+    padding: 30px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+
+/* Tabs */
+
+.tab-container {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #e5e7eb;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.active-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+/* ================= LOGIN PAGE IMPROVEMENTS ================= */
+
+
+/* Welcome Heading */
+
+.welcome-heading {
+    position: absolute;
+    top: 80px;
+    font-size: 32px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    animation: slideFade 1.2s ease;
+}
+
+
+/* Heading Animation */
+
+@keyframes slideFade {
+    0% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Increase Login Card Size */
+
+.login-card {
+    width: 360px;
+    padding: 40px;
+    border-radius: 14px;
+}
+
+
+/* Google Button Layout */
+
+.google-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+
+/* Google Hover */
+
+.google-btn:hover {
+    background: #f3f4f6;
+}
+
+
+/* Google Icon */
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+}
+
+
+/* Better Button Hover */
+
+.main-btn:hover {
+    background: #1d4ed8;
+}
+
+
+/* Smooth Input Focus */
+
+.input:focus {
+    outline: none;
+    border: 1px solid #2563eb;
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.4);
+}
+
+
+/* Form */
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+/* Inputs */
+
+.input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+
+/* Main Button */
+
+.main-btn {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+/* Google Button */
+
+.google-btn {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.error-text {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.error {
+    color: red;
+    font-size: 13px;
+    margin-top: -8px;
+    margin-bottom: 5px;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.password-box {
+    position: relative;
+}
+
+.eye {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+
+.password-field {
+    position: relative;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid white;
+    border-top: 3px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
