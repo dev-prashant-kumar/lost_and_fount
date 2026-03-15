@@ -5,6 +5,8 @@ import Home from "./pages/Home.jsx";
 import EmailConfirmed from "./pages/EmailConfirmed.jsx";
 import ReportItem from "./pages/ReportItem";
 import ItemDetails from "./pages/ItemDetails";
+import LostItems from "./pages/LostItems";
+import FoundItems from "./pages/FoundItems";
 function App() {
   return (
     <BrowserRouter>
@@ -16,6 +18,8 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/report" element={<ReportItem />} />
         <Route path="/item/:id" element={<ItemDetails />} />
+        <Route path="/lost-items" element={<LostItems />} />
+        <Route path="/found-items" element={<FoundItems />} />
       </Routes>
     </BrowserRouter>
   );

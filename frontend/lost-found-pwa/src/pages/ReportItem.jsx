@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { FaMapMarkerAlt, FaUpload, FaTrash } from "react-icons/fa";
 import { supabase } from "../supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 export default function ReportItem() {
+
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     type: "lost",
@@ -20,16 +24,19 @@ export default function ReportItem() {
   const [selectedImage, setSelectedImage] = useState(null);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+
+    // Limit contactPhone to 10 digits
+    if (name === "contactPhone") {
+      if (!/^\d*$/.test(value)) return; // only numbers
+      if (value.length > 10) return; // max 10 digits
+    }
+
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Image upload preview
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
-
     if (file) {
       setSelectedImage(file);
       setImagePreview(URL.createObjectURL(file));
@@ -41,13 +48,9 @@ export default function ReportItem() {
     setSelectedImage(null);
   };
 
-  // Upload image to Supabase Storage
   const uploadImage = async () => {
-
     if (!selectedImage) return null;
-
     const fileName = `${Date.now()}-${selectedImage.name}`;
-
     const { error } = await supabase.storage
       .from("item-images")
       .upload(fileName, selectedImage);
@@ -64,30 +67,35 @@ export default function ReportItem() {
     return data.publicUrl;
   };
 
+  const capitalizeFirstLetter = (text) => {
+    if (!text) return "";
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  };
+
   const handleSubmit = async (e) => {
-
     e.preventDefault();
+    setLoading(true); // show spinner
 
-    // Upload image first
     const imageUrl = await uploadImage();
 
-    // Save data in database
     const { error } = await supabase
       .from("items")
       .insert([
         {
           type: formData.type,
-          name: formData.name,
+          name: capitalizeFirstLetter(formData.name),
           location: formData.location,
           map_link: formData.mapLink,
           date: formData.date,
           description: formData.description,
           image_url: imageUrl,
-          contact_name: formData.contactName,
+          contact_name: capitalizeFirstLetter(formData.contactName),
           contact_phone: formData.contactPhone,
           contact_email: formData.contactEmail,
         }
       ]);
+
+    setLoading(false); // hide spinner
 
     if (error) {
       console.log(error);
@@ -110,6 +118,9 @@ export default function ReportItem() {
 
       setImagePreview(null);
       setSelectedImage(null);
+
+      // redirect to home page
+      navigate("/");
     }
   };
 
@@ -118,12 +129,19 @@ export default function ReportItem() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-gray-800 p-6 rounded-lg w-full max-w-xl space-y-4 shadow-lg"
+        className="bg-gray-800 p-6 rounded-lg w-full max-w-xl space-y-4 shadow-lg relative"
       >
 
         <h2 className="text-2xl font-bold text-center">
           Report Lost / Found Item
         </h2>
+
+        {/* Loading spinner overlay */}
+        {loading && (
+          <div className="absolute inset-0 bg-black/50 flex justify-center items-center rounded-lg z-10">
+            <div className="w-12 h-12 border-4 border-lime-400 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
 
         {/* Item Type */}
         <select
@@ -160,7 +178,6 @@ export default function ReportItem() {
 
         {/* Google Map Link */}
         <div className="flex gap-2">
-
           <input
             type="url"
             name="mapLink"
@@ -169,7 +186,6 @@ export default function ReportItem() {
             onChange={handleChange}
             className="w-full p-2 rounded bg-gray-700"
           />
-
           <a
             href="https://maps.google.com"
             target="_blank"
@@ -178,7 +194,6 @@ export default function ReportItem() {
           >
             <FaMapMarkerAlt />
           </a>
-
         </div>
 
         {/* Date */}
@@ -201,40 +216,27 @@ export default function ReportItem() {
         />
 
         {/* Image Upload */}
-
         <div>
-
-          <label className="block mb-2 font-semibold">
-            Upload Item Image
-          </label>
-
+          <label className="block mb-2 font-semibold">Upload Item Image</label>
           {!imagePreview && (
             <label className="flex items-center justify-center gap-2 bg-blue-600 py-2 rounded cursor-pointer hover:bg-blue-700">
-
               <FaUpload />
-
               Upload Image
-
               <input
                 type="file"
                 accept="image/*"
                 onChange={handleImageUpload}
                 className="hidden"
               />
-
             </label>
           )}
-
           {imagePreview && (
-
             <div className="relative mt-3">
-
               <img
                 src={imagePreview}
                 alt="Preview"
                 className="w-full h-52 object-cover rounded"
               />
-
               <button
                 type="button"
                 onClick={removeImage}
@@ -242,18 +244,12 @@ export default function ReportItem() {
               >
                 <FaTrash />
               </button>
-
             </div>
-
           )}
-
         </div>
 
         {/* Contact Info */}
-
-        <h3 className="text-lg font-semibold pt-3">
-          Contact Information
-        </h3>
+        <h3 className="text-lg font-semibold pt-3">Contact Information</h3>
 
         <input
           type="text"
@@ -285,16 +281,15 @@ export default function ReportItem() {
         />
 
         {/* Submit */}
-
         <button
           type="submit"
-          className="w-full bg-blue-600 py-2 rounded hover:bg-blue-700"
+          disabled={loading}
+          className={`w-full py-2 rounded ${loading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
         >
-          Submit Report
+          {loading ? "Submitting..." : "Submit Report"}
         </button>
 
       </form>
-
     </div>
   );
 }
