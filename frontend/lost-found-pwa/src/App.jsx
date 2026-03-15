@@ -7,6 +7,8 @@ import ReportItem from "./pages/ReportItem";
 import ItemDetails from "./pages/ItemDetails";
 import LostItems from "./pages/LostItems";
 import FoundItems from "./pages/FoundItems";
+import UserProfile from "./pages/UserProfile";
+
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +22,7 @@ function App() {
         <Route path="/item/:id" element={<ItemDetails />} />
         <Route path="/lost-items" element={<LostItems />} />
         <Route path="/found-items" element={<FoundItems />} />
+        <Route path="/profile" element={<UserProfile />} />
       </Routes>
     </BrowserRouter>
   );
